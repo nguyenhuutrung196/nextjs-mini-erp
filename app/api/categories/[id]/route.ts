@@ -1,6 +1,45 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+export async function GET(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> },
+) {
+    try {
+        const { id } = await params;
+        const category = await prisma.category.findUnique({
+            where: { id },
+            include: {
+                translations: true,
+            },
+        });
+
+        if (!category) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Không tìm thấy danh mục sản phẩm này",
+                },
+                { status: 404 },
+            );
+        }
+
+        return NextResponse.json(
+            { success: true, data: category },
+            { status: 200 },
+        );
+    } catch (error: any) {
+        return NextResponse.json(
+            {
+                success: false,
+                message:
+                    error.message || "Lỗi khi lấy danh sách danh mục sản phẩm",
+            },
+            { status: 500 },
+        );
+    }
+}
+
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> },
