@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function GET(
     request: Request,
@@ -28,15 +29,18 @@ export async function GET(
             { success: true, data: category },
             { status: 200 },
         );
-    } catch (error: any) {
-        return NextResponse.json(
-            {
-                success: false,
-                message:
-                    error.message || "Lỗi khi lấy danh sách danh mục sản phẩm",
-            },
-            { status: 500 },
-        );
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: error.message,
+                },
+                { status: 500 },
+            );
+        } else {
+            console.error(error);
+        }
     }
 }
 
@@ -105,21 +109,37 @@ export async function PUT(
             { success: true, data: updateCategory },
             { status: 200 },
         );
-    } catch (error: any) {
-        if (error.code === "P2002") {
+    } catch (error: unknown) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2002") {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Slug của danh mục đã tồn tại",
+                    },
+                    { status: 400 },
+                );
+            } else {
+                console.error(error);
+            }
+        }
+
+        if (error instanceof Error) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "Slug của danh mục đã tồn tại",
+                    message: error.message,
                 },
-                { status: 400 },
+                { status: 500 },
             );
+        } else {
+            console.error(error);
         }
 
         return NextResponse.json(
             {
                 success: false,
-                message: error.message || "Lỗi khi tạo danh mục sản phẩm",
+                error: "Lỗi khi tạo danh mục sản phẩm",
             },
             { status: 500 },
         );
@@ -141,13 +161,17 @@ export async function DELETE(
             { success: true, message: "Danh mục sản phẩm đã xóa" },
             { status: 200 },
         );
-    } catch (error: any) {
-        return NextResponse.json(
-            {
-                success: false,
-                message: error.message || "Lỗi khi xóa danh mục sản phẩm",
-            },
-            { status: 500 },
-        );
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: error.message,
+                },
+                { status: 500 },
+            );
+        } else {
+            console.error(error);
+        }
     }
 }

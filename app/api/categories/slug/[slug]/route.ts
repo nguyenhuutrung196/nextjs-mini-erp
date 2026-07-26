@@ -28,14 +28,17 @@ export async function GET(
             { success: true, data: category },
             { status: 200 },
         );
-    } catch (error: any) {
-        return NextResponse.json(
-            {
-                success: false,
-                message:
-                    error.message || "Lỗi khi lấy danh sách danh mục sản phẩm",
-            },
-            { status: 500 },
-        );
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: error.message,
+                },
+                { status: 500 },
+            );
+        } else {
+            console.error(error);
+        }
     }
 }
