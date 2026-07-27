@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { handleError } from "@/lib/error-handler";
 
 export async function GET(
     request: Request,
@@ -28,17 +29,7 @@ export async function GET(
             { success: true, data: category },
             { status: 200 },
         );
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: error.message,
-                },
-                { status: 500 },
-            );
-        } else {
-            console.error(error);
-        }
+    } catch (error) {
+        return handleError(error, "Lỗi khi lấy danh mục sản phẩm theo slug");
     }
 }

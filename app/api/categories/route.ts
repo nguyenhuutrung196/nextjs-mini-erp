@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { handleError } from "@/lib/error-handler";
 
 export async function GET() {
     try {
@@ -17,18 +18,8 @@ export async function GET() {
             { success: true, data: categories },
             { status: 200 },
         );
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: error.message,
-                },
-                { status: 500 },
-            );
-        } else {
-            console.error(error);
-        }
+    } catch (error) {
+        return handleError(error, "Lỗi khi lấy danh sách danh mục");
     }
 }
 
@@ -80,38 +71,7 @@ export async function POST(request: Request) {
             { success: true, data: newCategory },
             { status: 200 },
         );
-    } catch (error: unknown) {
-        // check error type from Prisma Client
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === "P2002") {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        message: "Slug của danh mục đã tồn tại",
-                    },
-                    { status: 400 },
-                );
-            } else {
-                console.error(error);
-            }
-        }
-
-        if (error instanceof Error) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: error.message,
-                },
-                { status: 500 },
-            );
-        }
-
-        return NextResponse.json(
-            {
-                success: false,
-                error: "Lỗi khi tạo danh mục sản phẩm",
-            },
-            { status: 500 },
-        );
+    } catch (error) {
+        return handleError(error, "Lỗi khi tạo danh mục sản phẩm");
     }
 }

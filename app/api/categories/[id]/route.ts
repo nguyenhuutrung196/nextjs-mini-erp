@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { handleError } from "@/lib/error-handler";
 
 export async function GET(
     request: Request,
@@ -29,18 +30,8 @@ export async function GET(
             { success: true, data: category },
             { status: 200 },
         );
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: error.message,
-                },
-                { status: 500 },
-            );
-        } else {
-            console.error(error);
-        }
+    } catch (error) {
+        return handleError(error, "Lỗi khi lấy danh mục chỉ định theo ID");
     }
 }
 
@@ -109,40 +100,8 @@ export async function PUT(
             { success: true, data: updateCategory },
             { status: 200 },
         );
-    } catch (error: unknown) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === "P2002") {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        message: "Slug của danh mục đã tồn tại",
-                    },
-                    { status: 400 },
-                );
-            } else {
-                console.error(error);
-            }
-        }
-
-        if (error instanceof Error) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: error.message,
-                },
-                { status: 500 },
-            );
-        } else {
-            console.error(error);
-        }
-
-        return NextResponse.json(
-            {
-                success: false,
-                error: "Lỗi khi tạo danh mục sản phẩm",
-            },
-            { status: 500 },
-        );
+    } catch (error) {
+        return handleError(error, "Lỗi khi cập nhật danh mục sản phẩm");
     }
 }
 
@@ -161,17 +120,7 @@ export async function DELETE(
             { success: true, message: "Danh mục sản phẩm đã xóa" },
             { status: 200 },
         );
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: error.message,
-                },
-                { status: 500 },
-            );
-        } else {
-            console.error(error);
-        }
+    } catch (error) {
+        return handleError(error, "Lỗi khi xóa danh mục sản phẩm");
     }
 }
