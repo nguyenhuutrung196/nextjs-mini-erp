@@ -140,7 +140,6 @@ enum OrderStatus {
 model Order {
   id             String      @id @default(uuid())
   userId         String?
-  totalAmount    Float
   discountAmount Float       @default(0)
   couponCode     String?
   status         OrderStatus @default(PENDING)
