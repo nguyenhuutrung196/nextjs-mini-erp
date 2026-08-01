@@ -35,7 +35,7 @@ export default async function AdminOrdersPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {paidOrders.map((order: any) => (
+                            {paidOrders.map((order) => (
                                 <tr key={order.id} className="hover:bg-gray-50">
                                     <td className="p-4 border-b text-sm font-mono text-gray-300">
                                         {order.id.slice(0, 8)}

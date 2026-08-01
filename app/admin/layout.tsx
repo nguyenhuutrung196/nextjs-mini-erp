@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { Toaster } from "sonner";
 
 export default async function AdminLayout({
     children,
@@ -38,6 +39,8 @@ export default async function AdminLayout({
             </aside>
 
             <main className="flex-1 p-8">{children}</main>
+
+            <Toaster position="bottom-right" richColors />
         </div>
     );
 }
