@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import UpdateOrderButton from "./UpdateOrderButton";
 
 export default async function AdminOrdersPage() {
     const paidOrders = await prisma.order.findMany({
@@ -52,9 +53,7 @@ export default async function AdminOrdersPage() {
                                         </span>
                                     </td>
                                     <td className="p-4 border-b">
-                                        <button className="bg-blue-600 hover:bg-blue-700 transition text-white py-2 px-4 rounded shadow">
-                                            Xác nhận giao hàng
-                                        </button>
+                                        <UpdateOrderButton orderId={order.id} />
                                     </td>
                                 </tr>
                             ))}
