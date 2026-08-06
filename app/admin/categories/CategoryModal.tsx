@@ -19,6 +19,7 @@ interface CategoryModalProps {
 function generateSlug(text: string): string {
     return text
         .toLowerCase()
+        .replace(/đ/g, "d") //chuyển đ thành d
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "") //xóa dấu
         .replace(/[^a-z0-9]+/g, "-") //xóa các ký tự không phải chữ cái
@@ -33,15 +34,28 @@ export default function CategoryModal({
 }: CategoryModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState("vi");
-    const [slug, setSlug] = useState("");
+    const [slug, setSlug] = useState(categoryData ? categoryData.slug : "");
 
     // declare state for translations
     const [translations, setTranslations] = useState<
         Record<string, { name: string; description: string }>
-    >({
-        vi: { name: "", description: "" },
-        en: { name: "", description: "" },
-        ja: { name: "", description: "" },
+    >(() => {
+        const tempTrans = {
+            vi: { name: "", description: "" },
+            en: { name: "", description: "" },
+            ja: { name: "", description: "" },
+        };
+        if (categoryData) {
+            categoryData.translations.forEach((t: any) => {
+                if (t.locale in tempTrans) {
+                    tempTrans[t.locale as keyof typeof tempTrans] = {
+                        name: t.name,
+                        description: t.description || "",
+                    };
+                }
+            });
+        }
+        return tempTrans;
     });
 
     useEffect(() => {
