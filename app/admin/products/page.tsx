@@ -10,6 +10,13 @@ export default async function AdminProductsPage() {
         orderBy: { createdAt: "desc" },
         include: {
             translations: true,
+            category: {
+                include: {
+                    translations: {
+                        where: { locale: "vi" },
+                    },
+                },
+            },
             variants: {
                 include: {
                     optionValues: {

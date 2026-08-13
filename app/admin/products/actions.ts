@@ -28,7 +28,7 @@ export async function getCategoriesForSelectAction() {
 
         return categories.map((category) => ({
             id: category.id,
-            name: category.translations[0].name || "Danh mục chưa dịch",
+            name: category.translations?.[0]?.name || "Danh mục chưa dịch",
         }));
     } catch (error: unknown) {
         console.error(error);

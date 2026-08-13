@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Toaster } from "sonner";
 
@@ -30,7 +31,10 @@ export default async function AdminLayout({
                         Quản lý đơn hàng
                     </li>
                     <li className="hover:text-gray-300 cursor-pointer">
-                        Sản phẩm
+                        <Link href={"/admin/categories"}>Danh mục</Link>
+                    </li>
+                    <li className="hover:text-gray-300 cursor-pointer">
+                        <Link href={"/admin/products"}>Sản phẩm</Link>
                     </li>
                     <li className="hover:text-gray-300 cursor-pointer">
                         Khách hàng
