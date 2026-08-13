@@ -3,6 +3,9 @@
 import { useState } from "react";
 import ProductModal from "./ProductModal";
 import Link from "next/link";
+import { toast } from "sonner";
+import { deleteProductAction } from "./actions";
+import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 
 export default function AdminProductsClient({
     initialProducts,
@@ -14,6 +17,13 @@ export default function AdminProductsClient({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
     const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("ALL");
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState<{
+        id: string;
+        name: string;
+    } | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleEditClick = (product: any) => {
         setSelectedProduct(product);
@@ -28,6 +38,40 @@ export default function AdminProductsClient({
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedProduct(null);
+    };
+
+    const handleDeleteClick = async (id: string, name: string) => {
+        setProductToDelete({ id, name });
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!productToDelete) return;
+
+        setIsDeleting(true);
+        const toastId = toast.loading(
+            `Đang xóa sản phẩm ${productToDelete?.name}...`,
+        );
+        try {
+            const res = await deleteProductAction(productToDelete?.id);
+            if (res?.success) {
+                toast.success(
+                    `Đã xóa sản phẩm ${productToDelete?.name} thành công!`,
+                    {
+                        id: toastId,
+                    },
+                );
+                setIsDeleteModalOpen(false);
+            } else {
+                toast.error(`Lỗi xóa sản phẩm ${productToDelete?.name}`, {
+                    id: toastId,
+                });
+            }
+        } catch {
+            toast.error(`Lỗi xóa sản phẩm ${productToDelete?.name}`);
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     //filter in Warehouse 5
@@ -185,7 +229,20 @@ export default function AdminProductsClient({
                                                 }
                                                 className="bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 font-bold px-3 py-1.5 rounded-lg border border-gray-200 hover:border-blue-200 transition text-sm mr-2"
                                             >
-                                                ✏️ Sửa
+                                                Sửa
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleDeleteClick(
+                                                        product.id,
+                                                        viTrans.name ||
+                                                            "Sản phẩm",
+                                                    )
+                                                }
+                                                disabled={isDeleting}
+                                                className="bg-red-100 hover:bg-red-100 text-red-700 hover:text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:border-blue-200 transition text-sm mr-2"
+                                            >
+                                                Xóa
                                             </button>
                                         </td>
                                     </tr>
@@ -202,6 +259,18 @@ export default function AdminProductsClient({
                     isOpen={isModalOpen}
                     onClose={handleCloseModal}
                     productData={selectedProduct}
+                />
+            )}
+
+            {isDeleteModalOpen && (
+                <ConfirmDeleteModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    title="Xác nhận xóa sản phẩm"
+                    itemName={productToDelete?.name || "sản phẩm"}
+                    warningMessage="Toàn bộ biến thể và thông tin kho hàng của sản phẩm này sẽ bị xóa vĩnh viễn khỏi Database."
+                    isLoading={isDeleting}
                 />
             )}
         </div>

@@ -175,3 +175,35 @@ export async function upsertProductAction(
         };
     }
 }
+
+export async function deleteProductAction(id: string) {
+    try {
+        const currentUser = await prisma.user.findFirst();
+        if (currentUser?.role !== "ADMIN" && currentUser?.role !== "EMPLOYEE") {
+            throw new Error("403 - Không có quyền truy cập");
+        }
+
+        await prisma.$transaction(async (tx) => {
+            await tx.productTranslation.deleteMany({
+                where: { productId: id },
+            });
+
+            await tx.productOption.deleteMany({
+                where: { productId: id },
+            });
+
+            await tx.productVariant.deleteMany({
+                where: { productId: id },
+            });
+
+            await tx.product.delete({
+                where: { id },
+            });
+        });
+
+        revalidatePath("/admin/products");
+        return { success: true };
+    } catch (error: unknown) {
+        return { success: false, error };
+    }
+}

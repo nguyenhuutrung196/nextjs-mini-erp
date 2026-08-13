@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import CategoryModal from "./CategoryModal";
+import { toast } from "sonner";
+import { deleteCategoryAction } from "./actions";
+import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 
 export default function AdminCategoriesClient({
     initialCategories,
@@ -10,6 +13,13 @@ export default function AdminCategoriesClient({
 }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [categoryToDelete, setCategoryToDelete] = useState<{
+        id: string;
+        name: string;
+    } | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleEditClick = (category: any) => {
         setSelectedCategory(category);
@@ -24,6 +34,41 @@ export default function AdminCategoriesClient({
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedCategory(null);
+    };
+
+    const handleDeleteClick = async (id: string, name: string) => {
+        setCategoryToDelete({ id, name });
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!categoryToDelete) return;
+        setIsDeleting(true);
+        const toastId = toast.loading(
+            `Đang xóa danh mục ${categoryToDelete.name}...`,
+        );
+
+        try {
+            const res = await deleteCategoryAction(categoryToDelete.id);
+            if (res?.success) {
+                toast.success(
+                    `Đã xóa danh mục ${categoryToDelete.name} thành công!`,
+                    {
+                        id: toastId,
+                    },
+                );
+                setIsDeleteModalOpen(false);
+                setCategoryToDelete(null);
+            } else {
+                toast.error(`Lỗi xóa danh mục ${categoryToDelete.name}`, {
+                    id: toastId,
+                });
+            }
+        } catch {
+            toast.error(`Lỗi xóa danh mục ${categoryToDelete.name}`);
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     return (
@@ -106,6 +151,19 @@ export default function AdminCategoriesClient({
                                             >
                                                 Sửa
                                             </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleDeleteClick(
+                                                        category.id,
+                                                        viTrans.name ||
+                                                            "Danh mục",
+                                                    )
+                                                }
+                                                disabled={isDeleting}
+                                                className="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-100 hover:border-red-300 transition text-sm disabled:opacity-50"
+                                            >
+                                                Xóa
+                                            </button>
                                         </td>
                                     </tr>
                                 );
@@ -123,6 +181,18 @@ export default function AdminCategoriesClient({
                     isOpen={isModalOpen}
                     onClose={() => handleCloseModal()}
                     categoryData={selectedCategory}
+                />
+            )}
+
+            {isDeleteModalOpen && (
+                <ConfirmDeleteModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    title="Xác nhận xóa danh mục"
+                    itemName={categoryToDelete?.name || "danh mục"}
+                    warningMessage="Hệ thống sẽ từ chối xóa nếu danh mục này đang chứa sản phẩm."
+                    isLoading={isDeleting}
                 />
             )}
         </div>
