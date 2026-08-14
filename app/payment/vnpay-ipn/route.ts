@@ -61,6 +61,7 @@ export async function GET(request: Request) {
         if (verify.isSuccess) {
             //run transaction to update and minus stock
             await prisma.$transaction(async (tx) => {
+                //update order status
                 await tx.order.update({
                     where: { id: order.id },
                     data: {
@@ -68,13 +69,43 @@ export async function GET(request: Request) {
                     },
                 });
 
+                //write log order history
+                await tx.orderStatusHistory.create({
+                    data: {
+                        orderId,
+                        status: "PAID",
+                        note: `Thanh toán thành công qua VNPay. Mã giao dịch: ${query.vnp_TransactionNo}`,
+                        changeBy: "SYSTEM_VNPAY",
+                    },
+                });
+
+                //create payment
+                await tx.payment.create({
+                    data: {
+                        orderId,
+                        method: "VNPAY",
+                        status: "SUCCESS",
+                        transactionId: query.vnp_TransactionNo
+                            ? String(query.vnp_TransactionNo)
+                            : undefined,
+                    },
+                });
+
+                //asynchronously update stock
                 for (const item of order.items) {
+                    const variant = item.variant;
+                    const newStock = variant.stock - item.quantity;
+
+                    if (newStock < 0) {
+                        throw new Error(
+                            `Sản phẩm ${variant.sku} đã hết hàng trong quá trình xử lý`,
+                        );
+                    }
+
                     await tx.productVariant.update({
-                        where: { id: item.variantId },
+                        where: { id: variant.id },
                         data: {
-                            stock: {
-                                decrement: item.quantity,
-                            },
+                            stock: newStock,
                         },
                     });
                 }

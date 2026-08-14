@@ -185,7 +185,7 @@ model OrderStatusHistory {
 
 enum PaymentMethod {
   COD
-  PAYOS
+  VNPAY
 }
 
 enum PaymentStatus {
