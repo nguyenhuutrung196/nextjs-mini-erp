@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useCartStore } from "../../store/cartStore";
 
 export default function VNPayReturnPage() {
     const searchParams = useSearchParams();
@@ -13,6 +15,13 @@ export default function VNPayReturnPage() {
         ? (Number(vnp_Amount) / 100).toLocaleString("vi-VN")
         : "0";
     const isSuccess = vnp_ResponseCode === "00";
+
+    const clearCart = useCartStore((state) => state.clearCart);
+    useEffect(() => {
+        if (isSuccess) {
+            clearCart();
+        }
+    }, [isSuccess, clearCart]);
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">

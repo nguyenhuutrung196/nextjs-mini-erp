@@ -94,18 +94,17 @@ export async function GET(request: Request) {
                 //asynchronously update stock
                 for (const item of order.items) {
                     const variant = item.variant;
-                    const newStock = variant.stock - item.quantity;
 
-                    if (newStock < 0) {
+                    if (variant.stock < item.quantity) {
                         throw new Error(
-                            `Sản phẩm ${variant.sku} đã hết hàng trong quá trình xử lý`,
+                            `Sản phẩm ${variant.sku} còn ${item.quantity} sản phẩm, không đủ đáp ứng `,
                         );
                     }
 
                     await tx.productVariant.update({
                         where: { id: variant.id },
                         data: {
-                            stock: newStock,
+                            stock: item.quantity,
                         },
                     });
                 }
