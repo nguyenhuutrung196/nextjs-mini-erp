@@ -12,9 +12,21 @@ const vnpay = new VNPay({
 
 export async function POST(request: Request) {
     try {
-        // find current pending order
-        const activeOrder = await prisma.order.findFirst({
-            where: { status: "PENDING" },
+        const body = await request.json();
+        const { orderId } = body;
+
+        if (!orderId) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Thiếu mã đơn hàng",
+                },
+                { status: 400 },
+            );
+        }
+        // find current pending order by orderId
+        const activeOrder = await prisma.order.findUnique({
+            where: { id: orderId },
         });
 
         if (!activeOrder) {
