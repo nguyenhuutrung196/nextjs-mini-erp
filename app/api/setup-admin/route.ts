@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export async function GET() {
     try {
@@ -18,9 +19,14 @@ export async function GET() {
                 { status: 400 },
             );
         }
+
+        //set password default
+        const hashedPassword = await bcrypt.hash("admin123", 10);
+
         const newAdmin = await prisma.user.create({
             data: {
                 email: "admin@my-mini-erp.com",
+                password: hashedPassword,
                 name: "Admin",
                 role: "ADMIN",
             },
@@ -29,8 +35,8 @@ export async function GET() {
         return NextResponse.json(
             {
                 success: true,
-                message: "Admin đã tạo thành công",
-                data: newAdmin,
+                message: "Admin đã tạo thành công với mật khẩu mặc định",
+                data: { email: newAdmin.email, role: newAdmin.role },
             },
             { status: 200 },
         );
