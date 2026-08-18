@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -15,10 +16,7 @@ export async function upsertCategoryAction(
     translations: TranslationInput[],
 ) {
     try {
-        const currentUser = await prisma.user.findFirst();
-        if (currentUser?.role !== "ADMIN" && currentUser?.role !== "EMPLOYEE") {
-            throw new Error("403 - Không có quyền truy cập");
-        }
+        await requireAdmin();
 
         if (!slug || translations.length === 0) {
             throw new Error("Điền thông tin bắt buộc");
@@ -133,10 +131,7 @@ export async function autoTranslateAction(
 
 export async function deleteCategoryAction(id: string) {
     try {
-        const currentUser = await prisma.user.findFirst();
-        if (currentUser?.role !== "ADMIN" && currentUser?.role !== "EMPLOYEE") {
-            throw new Error("403 - Không có quyền truy cập");
-        }
+        await requireAdmin();
 
         const productCount = await prisma.product.count({
             where: { categoryId: id },

@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -46,10 +47,7 @@ export async function upsertProductAction(
     variants: VariantInput[],
 ) {
     try {
-        const currentUser = await prisma.user.findFirst();
-        if (currentUser?.role !== "ADMIN" && currentUser?.role !== "EMPLOYEE") {
-            throw new Error("403 - Không có quyền truy cập");
-        }
+        await requireAdmin();
 
         if (
             !categoryId ||
@@ -178,10 +176,7 @@ export async function upsertProductAction(
 
 export async function deleteProductAction(id: string) {
     try {
-        const currentUser = await prisma.user.findFirst();
-        if (currentUser?.role !== "ADMIN" && currentUser?.role !== "EMPLOYEE") {
-            throw new Error("403 - Không có quyền truy cập");
-        }
+        await requireAdmin();
 
         await prisma.$transaction(async (tx) => {
             await tx.productTranslation.deleteMany({

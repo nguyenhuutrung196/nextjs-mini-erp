@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import { getServerSession, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -75,3 +75,17 @@ export const authOptions: NextAuthOptions = {
     },
     secret: process.env.NEXTAUTH_SECRET,
 };
+
+//utils function request not have admin/employee role
+export async function requireAdmin() {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+        throw new Error("401 - Vui lòng đăng nhập");
+    }
+
+    if (session.user.role !== "ADMIN" && session.user.role !== "EMPLOYEE") {
+        throw new Error("403 - Không có quyền truy cập");
+    }
+
+    return session.user;
+}
