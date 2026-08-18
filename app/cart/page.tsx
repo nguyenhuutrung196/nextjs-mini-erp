@@ -101,8 +101,10 @@ export default function CartPage() {
             } else {
                 throw new Error(paymentData.error || "Lỗi liên kết VNPay");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Có lỗi", { id: toastId });
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast.error(error.message || "Có lỗi", { id: toastId });
+            }
             setIsSubmitting(false);
         }
     };

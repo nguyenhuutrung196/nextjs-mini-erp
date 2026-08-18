@@ -48,3 +48,36 @@ export interface Product {
     translations: Translation[];
     createdAt: Date;
 }
+
+export interface AdminTranslation {
+    id: string;
+    locale: string;
+    name: string;
+    description: string | null;
+}
+
+export interface AdminCategory {
+    id: string;
+    slug: string;
+    translations: AdminTranslation[];
+    _count?: { products: number };
+}
+
+export interface AdminProductVariant {
+    id: string;
+    sku: string;
+    price: number;
+    stock: number;
+    optionValues: { option: { name: string }; value: string }[];
+}
+
+export interface AdminProduct {
+    id: string;
+    slug: string;
+    basePrice: number;
+    images: string[];
+    categoryId: string;
+    category?: { translations: AdminTranslation[] };
+    translations: AdminTranslation[];
+    variants: AdminProductVariant[];
+}

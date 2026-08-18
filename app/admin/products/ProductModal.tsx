@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getCategoriesForSelectAction, upsertProductAction } from "./actions";
 import { autoTranslateAction } from "../categories/actions";
+import { AdminProduct, AdminTranslation } from "@/types/erp";
 
 const SUPPORTED_LOCALES = [
     { code: "vi", label: "Tiếng Việt" },
@@ -14,7 +15,7 @@ const SUPPORTED_LOCALES = [
 interface ProductModalProps {
     isOpen: boolean;
     onClose: () => void;
-    productData: any | null; //create product or update product
+    productData: AdminProduct | null; //create product or update product
 }
 
 function generateSlug(text: string): string {
@@ -41,7 +42,7 @@ export default function ProductModal({
 
     //category states
     const [categoryId, setCategoryId] = useState(
-        productData ? productData?.category?.id : "",
+        productData ? productData?.categoryId : "",
     );
     const [slug, setSlug] = useState(productData ? productData.slug : "");
     const [basePrice, setBasePrice] = useState(
@@ -58,7 +59,7 @@ export default function ProductModal({
             ja: { name: "", description: "" },
         };
         if (productData) {
-            productData.translations.forEach((t: any) => {
+            productData.translations.forEach((t: AdminTranslation) => {
                 if (t.locale in tempTrans) {
                     tempTrans[t.locale as keyof typeof tempTrans] = {
                         name: t.name,
@@ -73,7 +74,8 @@ export default function ProductModal({
     const [variantColor, setVariantColor] = useState<string>(() => {
         if (productData?.variants?.[0]?.optionValues) {
             const colorOption = productData.variants[0].optionValues.find(
-                (ov: any) => ov.option?.name === "Màu sắc",
+                (ov: { option: { name: string }; value: string }) =>
+                    ov.option?.name === "Màu sắc",
             );
             return colorOption?.value || "Tiêu chuẩn";
         }
@@ -82,10 +84,12 @@ export default function ProductModal({
     const [variantSize, setVariantSize] = useState<string>(() => {
         if (productData?.variants?.[0]?.optionValues) {
             const sizeOption = productData.variants[0].optionValues.find(
-                (ov: any) => ov.option?.name === "Kích cỡ",
+                (ov: { option: { name: string }; value: string }) =>
+                    ov.option?.name === "Kích cỡ",
             );
             return sizeOption?.value || "Size M";
         }
+        return "Size M";
     });
     const [sku, setSku] = useState(() => {
         return productData ? productData?.variants?.[0]?.sku : "";

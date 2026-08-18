@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { autoTranslateAction, upsertCategoryAction } from "./actions";
+import { AdminCategory, AdminTranslation } from "@/types/erp";
 
 const SUPPORT_LOCALES = [
     { code: "vi", label: "Tiếng Việt" },
@@ -13,7 +14,7 @@ const SUPPORT_LOCALES = [
 interface CategoryModalProps {
     isOpen: boolean;
     onClose: () => void;
-    categoryData: any | null; //create category or update category
+    categoryData: AdminCategory | null; //create category or update category
 }
 
 function generateSlug(text: string): string {
@@ -46,7 +47,7 @@ export default function CategoryModal({
             ja: { name: "", description: "" },
         };
         if (categoryData) {
-            categoryData.translations.forEach((t: any) => {
+            categoryData.translations.forEach((t: AdminTranslation) => {
                 if (t.locale in tempTrans) {
                     tempTrans[t.locale as keyof typeof tempTrans] = {
                         name: t.name,

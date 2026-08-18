@@ -5,14 +5,16 @@ import CategoryModal from "./CategoryModal";
 import { toast } from "sonner";
 import { deleteCategoryAction } from "./actions";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
+import { AdminCategory, AdminTranslation } from "@/types/erp";
 
 export default function AdminCategoriesClient({
     initialCategories,
 }: {
-    initialCategories: any[];
+    initialCategories: AdminCategory[];
 }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
+    const [selectedCategory, setSelectedCategory] =
+        useState<AdminCategory | null>(null);
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState<{
@@ -21,7 +23,7 @@ export default function AdminCategoriesClient({
     } | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleEditClick = (category: any) => {
+    const handleEditClick = (category: AdminCategory) => {
         setSelectedCategory(category);
         setIsModalOpen(true);
     };
@@ -113,10 +115,10 @@ export default function AdminCategoriesClient({
                         ) : (
                             initialCategories.map((category) => {
                                 const viTrans = category.translations.find(
-                                    (t: any) => t.locale === "vi",
+                                    (t: AdminTranslation) => t.locale === "vi",
                                 );
                                 const enTrans = category.translations.find(
-                                    (t: any) => t.locale === "en",
+                                    (t: AdminTranslation) => t.locale === "en",
                                 );
 
                                 return (
@@ -139,7 +141,7 @@ export default function AdminCategoriesClient({
                                         </td>
                                         <td className="p-4 border-b">
                                             <span className="bg-blue-50 text-blue-700 py-1 px-3 rounded-full text-xs font-bold border border-blue-100">
-                                                {category._count.products} SP
+                                                {category._count?.products} SP
                                             </span>
                                         </td>
                                         <td className="p-4 border-b text-right">
@@ -155,7 +157,7 @@ export default function AdminCategoriesClient({
                                                 onClick={() =>
                                                     handleDeleteClick(
                                                         category.id,
-                                                        viTrans.name ||
+                                                        viTrans?.name ||
                                                             "Danh mục",
                                                     )
                                                 }

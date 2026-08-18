@@ -6,16 +6,19 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { deleteProductAction } from "./actions";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
+import { AdminProduct, AdminTranslation } from "@/types/erp";
 
 export default function AdminProductsClient({
     initialProducts,
     categories,
 }: {
-    initialProducts: any[];
+    initialProducts: AdminProduct[];
     categories: { id: string; name: string }[];
 }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<AdminProduct | null>(
+        null,
+    );
     const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("ALL");
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -25,7 +28,7 @@ export default function AdminProductsClient({
     } | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const handleEditClick = (product: any) => {
+    const handleEditClick = (product: AdminProduct) => {
         setSelectedProduct(product);
         setIsModalOpen(true);
     };
@@ -156,12 +159,12 @@ export default function AdminProductsClient({
                                 </td>
                             </tr>
                         ) : (
-                            filteredProducts.map((product: any) => {
+                            filteredProducts.map((product: AdminProduct) => {
                                 const viTrans = product.translations.find(
-                                    (t: any) => t.locale === "vi",
+                                    (t: AdminTranslation) => t.locale === "vi",
                                 );
                                 const totalStock = product.variants.reduce(
-                                    (acc: number, curr: any) =>
+                                    (acc: number, curr: { stock: number }) =>
                                         acc + curr.stock,
                                     0,
                                 );
@@ -235,7 +238,7 @@ export default function AdminProductsClient({
                                                 onClick={() =>
                                                     handleDeleteClick(
                                                         product.id,
-                                                        viTrans.name ||
+                                                        viTrans?.name ||
                                                             "Sản phẩm",
                                                     )
                                                 }
