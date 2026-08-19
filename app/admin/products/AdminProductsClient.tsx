@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import ProductModal from "./ProductModal";
-import Link from "next/link";
 import { toast } from "sonner";
-import { deleteProductAction } from "./actions";
+import { deleteProductAction, restoreProductAction } from "./actions";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import { AdminProduct, AdminTranslation } from "@/types/erp";
 
@@ -20,13 +19,16 @@ export default function AdminProductsClient({
         null,
     );
     const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("ALL");
+    const [statusFilter, setStatusFilter] = useState<
+        "ALL" | "ACTIVE" | "HIDDEN"
+    >("ALL");
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState<{
         id: string;
         name: string;
     } | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const handleEditClick = (product: AdminProduct) => {
         setSelectedProduct(product);
@@ -51,7 +53,7 @@ export default function AdminProductsClient({
     const handleConfirmDelete = async () => {
         if (!productToDelete) return;
 
-        setIsDeleting(true);
+        setIsUpdating(true);
         const toastId = toast.loading(
             `Đang xóa sản phẩm ${productToDelete?.name}...`,
         );
@@ -73,19 +75,43 @@ export default function AdminProductsClient({
         } catch {
             toast.error(`Lỗi xóa sản phẩm ${productToDelete?.name}`);
         } finally {
-            setIsDeleting(false);
+            setIsUpdating(false);
+        }
+    };
+
+    const handleRestoreClick = async (id: string, name: string) => {
+        setIsUpdating(true);
+
+        const toastId = toast.loading(`Đang khôi phục sản phẩm ${name}...`);
+
+        try {
+            const res = await restoreProductAction(id);
+            if (res?.success) {
+                toast.success(`Đã khôi phục sản phẩm ${name} thành công!`, {
+                    id: toastId,
+                });
+            } else {
+                toast.error(`Lỗi: ${res?.error}`, { id: toastId });
+            }
+        } catch {
+            toast.error("Lỗi hệ thống", { id: toastId });
+        } finally {
+            setIsUpdating(false);
         }
     };
 
     //filter in Warehouse 5
-    const filteredProducts =
-        selectedCategoryFilter === "ALL"
-            ? initialProducts
-            : initialProducts.filter(
-                  (product) =>
-                      product?.categoryId?.trim() ===
-                      selectedCategoryFilter?.trim(),
-              );
+    const filteredProducts = initialProducts.filter((product) => {
+        const matchCategory =
+            selectedCategoryFilter === "ALL" ||
+            product.categoryId === selectedCategoryFilter;
+        const matchStatus =
+            statusFilter === "ALL" ||
+            (statusFilter === "ACTIVE" && product.isActive) ||
+            (statusFilter === "HIDDEN" && !product.isActive);
+
+        return matchCategory && matchStatus;
+    });
     return (
         <div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -105,6 +131,29 @@ export default function AdminProductsClient({
                 >
                     ➕ Thêm Sản Phẩm Mới
                 </button>
+            </div>
+
+            {/* Lọc trạng thái */}
+            <div className="mb-6 flex flex-col gap-4">
+                <div className="flex gap-2">
+                    {["ALL", "ACTIVE", "HIDDEN"].map((status) => (
+                        <button
+                            key={status}
+                            onClick={() => setStatusFilter(status as any)}
+                            className={`px-4 py-2 rounded-lg text-xs font-bold transition ${
+                                statusFilter === status
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            }`}
+                        >
+                            {status === "ALL"
+                                ? "Tất cả trạng thái"
+                                : status === "ACTIVE"
+                                  ? "Đang bán"
+                                  : "Đã ẩn"}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Lọc danh mục */}
@@ -176,7 +225,7 @@ export default function AdminProductsClient({
                                 return (
                                     <tr
                                         key={product.id}
-                                        className="hover:bg-gray-50/80 transition-colors border-b border-gray-50"
+                                        className={`transition-colors border-b border-gray-50 ${!product.isActive ? "bg-gray-50 opacity-75" : "hover:bg-gray-50/80"}`}
                                     >
                                         <td className="p-4">
                                             {product.images?.[0] ? (
@@ -242,11 +291,57 @@ export default function AdminProductsClient({
                                                             "Sản phẩm",
                                                     )
                                                 }
-                                                disabled={isDeleting}
+                                                disabled={isUpdating}
                                                 className="bg-red-100 hover:bg-red-100 text-red-700 hover:text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:border-blue-200 transition text-sm mr-2"
                                             >
                                                 Xóa
                                             </button>
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            {!product.isActive && (
+                                                <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded mr-3">
+                                                    Đã ẩn
+                                                </span>
+                                            )}
+
+                                            <button
+                                                onClick={() =>
+                                                    handleEditClick(product)
+                                                }
+                                                className="bg-gray-100 hover:bg-blue-50 text-gray-700 font-bold px-3 py-1.5 rounded-lg border mr-2 text-sm"
+                                            >
+                                                Sửa
+                                            </button>
+
+                                            {product.isActive ? (
+                                                <button
+                                                    onClick={() =>
+                                                        handleDeleteClick(
+                                                            product.id,
+                                                            viTrans?.name ||
+                                                                "Sản phẩm",
+                                                        )
+                                                    }
+                                                    disabled={isUpdating}
+                                                    className="bg-red-50 text-red-600 font-bold px-3 py-1.5 rounded-lg border text-sm"
+                                                >
+                                                    Ẩn
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() =>
+                                                        handleRestoreClick(
+                                                            product.id,
+                                                            viTrans?.name ||
+                                                                "Sản phẩm",
+                                                        )
+                                                    }
+                                                    disabled={isUpdating}
+                                                    className="bg-green-50 text-green-700 font-bold px-3 py-1.5 rounded-lg border text-sm"
+                                                >
+                                                    Khôi phục
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 );
@@ -273,7 +368,7 @@ export default function AdminProductsClient({
                     title="Xác nhận xóa sản phẩm"
                     itemName={productToDelete?.name || "sản phẩm"}
                     warningMessage="Toàn bộ biến thể và thông tin kho hàng của sản phẩm này sẽ bị xóa vĩnh viễn khỏi Database."
-                    isLoading={isDeleting}
+                    isLoading={isUpdating}
                 />
             )}
         </div>

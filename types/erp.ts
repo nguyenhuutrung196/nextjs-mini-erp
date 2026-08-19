@@ -68,6 +68,7 @@ export interface AdminProductVariant {
     sku: string;
     price: number;
     stock: number;
+    isActive: boolean;
     optionValues: { option: { name: string }; value: string }[];
 }
 
@@ -77,6 +78,7 @@ export interface AdminProduct {
     basePrice: number;
     images: string[];
     categoryId: string;
+    isActive: boolean;
     category?: { translations: AdminTranslation[] };
     translations: AdminTranslation[];
     variants: AdminProductVariant[];

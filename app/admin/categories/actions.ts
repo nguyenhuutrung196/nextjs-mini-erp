@@ -156,6 +156,9 @@ export async function deleteCategoryAction(id: string) {
         revalidatePath("/admin/categories");
         return { success: true };
     } catch (error: unknown) {
+        if (error instanceof Error) {
+            return { success: false, error: error.message };
+        }
         return { success: false, error };
     }
 }

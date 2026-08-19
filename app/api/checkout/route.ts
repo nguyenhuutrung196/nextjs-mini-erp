@@ -35,11 +35,18 @@ export async function POST(request: Request) {
             for (const item of items) {
                 const variant = await tx.productVariant.findUnique({
                     where: { id: item.variantId },
+                    include: { product: true },
                 });
 
                 if (!variant) {
                     throw new Error(
                         `Không tìm thấy biến thể ${item.variantId}`,
+                    );
+                }
+
+                if (!variant.isActive || !variant.product.isActive) {
+                    throw new Error(
+                        `Sản phẩm mã ${variant.sku} đã ngừng kinh doanh. Vui lòng xóa khỏi giỏ hàng`,
                     );
                 }
 

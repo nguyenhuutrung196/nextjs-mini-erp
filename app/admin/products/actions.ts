@@ -179,26 +179,77 @@ export async function deleteProductAction(id: string) {
         await requireAdmin();
 
         await prisma.$transaction(async (tx) => {
-            await tx.productTranslation.deleteMany({
-                where: { productId: id },
-            });
-
-            await tx.productOption.deleteMany({
-                where: { productId: id },
-            });
-
-            await tx.productVariant.deleteMany({
-                where: { productId: id },
-            });
-
-            await tx.product.delete({
+            const product = await tx.product.findUnique({
                 where: { id },
             });
+
+            if (!product) {
+                throw new Error("Không tìm thấy sản phẩm này");
+            }
+
+            await tx.product.update({
+                where: { id },
+                data: { isActive: false },
+            });
+
+            const variants = await tx.productVariant.findMany({
+                where: { productId: id },
+            });
+
+            for (const variant of variants) {
+                await tx.productVariant.update({
+                    where: { id: variant.id },
+                    data: { isActive: false },
+                });
+            }
         });
 
         revalidatePath("/admin/products");
         return { success: true };
     } catch (error: unknown) {
-        return { success: false, error };
+        if (error instanceof Error) {
+            return { success: false, error: error.message };
+        }
+        return { success: false, error: "Lỗi hệ thống khi xóa sản phẩm" };
+    }
+}
+
+export async function restoreProductAction(id: string) {
+    try {
+        await requireAdmin();
+
+        await prisma.$transaction(async (tx) => {
+            const product = await tx.product.findUnique({
+                where: { id },
+            });
+
+            if (!product) {
+                throw new Error("Không tìm thấy sản phẩm này");
+            }
+
+            await tx.product.update({
+                where: { id },
+                data: { isActive: true },
+            });
+
+            const variants = await tx.productVariant.findMany({
+                where: { productId: id },
+            });
+
+            for (const variant of variants) {
+                await tx.productVariant.update({
+                    where: { id: variant.id },
+                    data: { isActive: true },
+                });
+            }
+        });
+
+        revalidatePath("/admin/products");
+        return { success: true };
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            return { success: false, error: error.message };
+        }
+        return { success: false, error: "Lỗi hệ thống khi xóa sản phẩm" };
     }
 }

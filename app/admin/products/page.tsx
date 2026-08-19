@@ -8,6 +8,7 @@ export default async function AdminProductsPage() {
     // 1. Fetch all products with option values of variants
     const products = await prisma.product.findMany({
         orderBy: { createdAt: "desc" },
+        where: { isActive: true },
         include: {
             translations: true,
             category: {
