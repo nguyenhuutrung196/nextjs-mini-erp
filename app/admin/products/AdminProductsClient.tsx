@@ -279,7 +279,7 @@ export default function AdminProductsClient({
                                         </td>
                                         <td className="p-4 text-right">
                                             {!product.isActive && (
-                                                <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded mr-3">
+                                                <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-lg mr-3">
                                                     Đã ẩn
                                                 </span>
                                             )}
@@ -288,7 +288,7 @@ export default function AdminProductsClient({
                                                 onClick={() =>
                                                     handleEditClick(product)
                                                 }
-                                                className="bg-gray-100 hover:bg-blue-50 text-gray-700 font-bold px-3 py-1.5 rounded-lg border mr-2 text-sm"
+                                                className="bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 font-bold px-3 py-1.5 rounded-lg border border-gray-200 hover:border-blue-200 transition text-sm mr-2"
                                             >
                                                 Sửa
                                             </button>
@@ -303,7 +303,7 @@ export default function AdminProductsClient({
                                                         )
                                                     }
                                                     disabled={isUpdating}
-                                                    className="bg-red-50 text-red-600 font-bold px-3 py-1.5 rounded-lg border text-sm"
+                                                    className="bg-red-50 text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-100 hover:bg-red-100 transition text-sm"
                                                 >
                                                     Ẩn
                                                 </button>
@@ -317,7 +317,7 @@ export default function AdminProductsClient({
                                                         )
                                                     }
                                                     disabled={isUpdating}
-                                                    className="bg-green-50 text-green-700 font-bold px-3 py-1.5 rounded-lg border text-sm"
+                                                    className="bg-green-50 text-green-700 font-bold px-3 py-1.5 rounded-lg border border-green-100 hover:bg-green-100 transition text-sm"
                                                 >
                                                     Khôi phục
                                                 </button>
