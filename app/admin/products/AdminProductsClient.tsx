@@ -6,14 +6,25 @@ import { toast } from "sonner";
 import { deleteProductAction, restoreProductAction } from "./actions";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import { AdminProduct, AdminTranslation } from "@/types/erp";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AdminProductsClient({
     initialProducts,
     categories,
+    currentPage,
+    totalPages,
+    initialSearch,
 }: {
     initialProducts: AdminProduct[];
     categories: { id: string; name: string }[];
+    currentPage: number;
+    totalPages: number;
+    initialSearch: string;
 }) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [searchInput, setSearchInput] = useState(initialSearch);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<AdminProduct | null>(
         null,
@@ -115,6 +126,27 @@ export default function AdminProductsClient({
 
         return matchCategory && matchStatus;
     });
+
+    //handle search
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        const params = new URLSearchParams(searchParams.toString());
+        if (searchInput) {
+            params.set;
+        } else {
+            params.delete("search");
+        }
+        params.set("page", "1"); // restore page to 1
+        router.push(`/admin/products?${params.toString()}`);
+    };
+
+    //handle pagination
+    const handlePageChange = (nesPage: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("page", nesPage.toString());
+        router.push(`/admin/products?${params.toString()}`);
+    };
+
     return (
         <div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -134,6 +166,28 @@ export default function AdminProductsClient({
                 >
                     ➕ Thêm Sản Phẩm Mới
                 </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="mb-6 flex flex-col md:flex-row justify-between gap-4">
+                <form
+                    onSubmit={handleSearch}
+                    className="flex gap-2 w-full md:w-1/3 "
+                >
+                    <input
+                        type="text"
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        placeholder="Tìm kiếm..."
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                    <button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-md transition-all flex items-center gap-1"
+                    >
+                        Tìm
+                    </button>
+                </form>
             </div>
 
             {/* Lọc trạng thái */}
@@ -330,6 +384,31 @@ export default function AdminProductsClient({
                     </tbody>
                 </table>
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="flex justify-between items-center mt-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <span className="text-sm text-gray-500 font-medium">
+                        Trang {currentPage} / {totalPages}
+                    </span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold disabled:opacity-50 hover:bg-gray-50"
+                        >
+                            Trước
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold disabled:opacity-50 hover:bg-gray-50"
+                        >
+                            Sau
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Modal - Chỉ render khi thực sự mở để ép mount mới */}
             {isModalOpen && (
