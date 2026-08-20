@@ -8,6 +8,7 @@ interface ConfirmDeleteModalProps {
     itemName: string;
     warningMessage: string;
     isLoading: boolean;
+    actionType: "delete" | "hide";
 }
 
 export default function ConfirmDeleteModal({
@@ -18,8 +19,21 @@ export default function ConfirmDeleteModal({
     itemName,
     warningMessage,
     isLoading,
+    actionType = "delete",
 }: ConfirmDeleteModalProps) {
     if (!isOpen) return null;
+
+    const isDelete = actionType == "delete";
+
+    const actionText = isDelete ? "xóa" : "ẩn";
+    const actionLoadingText = isDelete ? "Đang xóa..." : "Đang ẩn...";
+    const btnColor = isDelete
+        ? "bg-red-600 hover:bg-red-700"
+        : "bg-amber-500 hover:bg-amber-600";
+    const icon = isDelete ? "⚠️" : "👁️‍🗨️";
+    const noteText = isDelete
+        ? "Thao tác này mang tính bảo mật cao và không thể hoàn tác!"
+        : "Sản phẩm này sẽ bị ẩn khỏi cửa hàng, nhưng bạn vẫn có thể khôi phục lại sau.";
 
     return (
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
@@ -34,7 +48,7 @@ export default function ConfirmDeleteModal({
                     </h3>
 
                     <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                        Bạn có chắc chắn muốn xóa{" "}
+                        Bạn có chắc chắn muốn {actionText}{" "}
                         <span className="font-extrabold text-red-600">
                             `{itemName}`
                         </span>{" "}
@@ -46,10 +60,7 @@ export default function ConfirmDeleteModal({
                         )}
                     </p>
 
-                    <p className="text-xs text-gray-400 italic">
-                        Thao tác này mang tính bảo mật cao và không thể hoàn
-                        tác!
-                    </p>
+                    <p className="text-xs text-gray-400 italic">{noteText}</p>
                 </div>
 
                 {/* Footer Buttons */}
@@ -89,10 +100,10 @@ export default function ConfirmDeleteModal({
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                     />
                                 </svg>
-                                Đang xóa...
+                                {actionLoadingText}
                             </>
                         ) : (
-                            "Xác nhận xóa"
+                            `Xác nhận ${actionText}`
                         )}
                     </button>
                 </div>

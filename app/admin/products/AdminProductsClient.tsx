@@ -105,10 +105,13 @@ export default function AdminProductsClient({
         const matchCategory =
             selectedCategoryFilter === "ALL" ||
             product.categoryId === selectedCategoryFilter;
+
+        const isProductActive = product.isActive != false;
+
         const matchStatus =
             statusFilter === "ALL" ||
-            (statusFilter === "ACTIVE" && product.isActive) ||
-            (statusFilter === "HIDDEN" && !product.isActive);
+            (statusFilter === "ACTIVE" && isProductActive) ||
+            (statusFilter === "HIDDEN" && !isProductActive);
 
         return matchCategory && matchStatus;
     });
@@ -275,29 +278,6 @@ export default function AdminProductsClient({
                                             </span>
                                         </td>
                                         <td className="p-4 text-right">
-                                            <button
-                                                onClick={() =>
-                                                    handleEditClick(product)
-                                                }
-                                                className="bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-600 font-bold px-3 py-1.5 rounded-lg border border-gray-200 hover:border-blue-200 transition text-sm mr-2"
-                                            >
-                                                Sửa
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleDeleteClick(
-                                                        product.id,
-                                                        viTrans?.name ||
-                                                            "Sản phẩm",
-                                                    )
-                                                }
-                                                disabled={isUpdating}
-                                                className="bg-red-100 hover:bg-red-100 text-red-700 hover:text-red-600 font-bold px-3 py-1.5 rounded-lg border border-red-200 hover:border-blue-200 transition text-sm mr-2"
-                                            >
-                                                Xóa
-                                            </button>
-                                        </td>
-                                        <td className="p-4 text-right">
                                             {!product.isActive && (
                                                 <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded mr-3">
                                                     Đã ẩn
@@ -365,10 +345,11 @@ export default function AdminProductsClient({
                     isOpen={isDeleteModalOpen}
                     onClose={() => setIsDeleteModalOpen(false)}
                     onConfirm={handleConfirmDelete}
-                    title="Xác nhận xóa sản phẩm"
+                    title="Xác nhận ẩn sản phẩm"
                     itemName={productToDelete?.name || "sản phẩm"}
-                    warningMessage="Toàn bộ biến thể và thông tin kho hàng của sản phẩm này sẽ bị xóa vĩnh viễn khỏi Database."
+                    warningMessage="Khách hàng sẽ không thể nhìn thấy hoặc mua sản phẩm này nữa."
                     isLoading={isUpdating}
+                    actionType="hide"
                 />
             )}
         </div>
