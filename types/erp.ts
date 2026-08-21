@@ -30,6 +30,7 @@ export interface ProductVariant {
     id: string;
     sku: string;
     price: number;
+    costPrice: number;
     stock: number;
     optionValueIds: string[];
 }
@@ -67,6 +68,7 @@ export interface AdminProductVariant {
     id: string;
     sku: string;
     price: number;
+    costPrice: number;
     stock: number;
     isActive: boolean;
     optionValues: { option: { name: string }; value: string }[];

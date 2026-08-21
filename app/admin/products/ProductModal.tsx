@@ -99,6 +99,9 @@ export default function ProductModal({
             ? productData?.variants?.[0]?.price
             : productData?.basePrice || 0;
     });
+    const [costPrice, setCostPrice] = useState<number>(() => {
+        return productData?.variants?.[0]?.costPrice || 0;
+    });
     const [stock, setStock] = useState(() => {
         return productData?.variants?.[0]?.stock !== undefined
             ? productData?.variants?.[0]?.stock
@@ -208,6 +211,7 @@ export default function ProductModal({
                     sku.trim() ||
                     `SKU-${slug.toUpperCase()}-${variantColor.toUpperCase()}-${variantSize.toUpperCase()}`,
                 price: Number(price) || Number(basePrice),
+                costPrice: Number(costPrice),
                 stock: Number(stock),
                 options: [
                     { optionName: "Màu sắc", value: variantColor },
@@ -413,8 +417,60 @@ export default function ProductModal({
                     <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 space-y-4">
                         <h3 className="text-sm font-bold text-blue-900 border-b border-blue-100 pb-2">
                             📦 Thiết lập Phiên bản & Kho hàng (Standard Variant)
+                            <span className="text-emerald-600 font-extrabold">
+                                Biên lợi nhuận:{" "}
+                                {price > 0
+                                    ? Math.round(
+                                          ((price - costPrice) / price) * 100,
+                                      )
+                                    : 0}
+                                %
+                            </span>
                         </h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div>
+                                <label className="block text-xs font-bold text-blue-800 uppercase mb-1">
+                                    Giá vốn (VND)
+                                </label>
+                                <input
+                                    type="number"
+                                    required
+                                    min={0}
+                                    value={costPrice}
+                                    onChange={(e) =>
+                                        setCostPrice(Number(e.target.value))
+                                    }
+                                    className="w-full px-2.5 py-1.5 border border-blue-200 bg-white rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-blue-800 uppercase mb-1">
+                                    Giá bán (VND)
+                                </label>
+                                <input
+                                    type="number"
+                                    required
+                                    min={0}
+                                    value={price}
+                                    onChange={(e) =>
+                                        setPrice(Number(e.target.value))
+                                    }
+                                    className="w-full px-2.5 py-1.5 border border-blue-200 bg-white rounded-md text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-blue-800 uppercase mb-1">
+                                    Số lượng kho
+                                </label>
+                                <input
+                                    type="number"
+                                    value={stock}
+                                    onChange={(e) =>
+                                        setStock(Number(e.target.value))
+                                    }
+                                    className="w-full px-2.5 py-1.5 border border-blue-200 bg-white rounded-md text-sm"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-xs font-bold text-blue-800 uppercase mb-1">
                                     Màu sắc
@@ -437,19 +493,6 @@ export default function ProductModal({
                                     value={variantSize}
                                     onChange={(e) =>
                                         setVariantSize(e.target.value)
-                                    }
-                                    className="w-full px-2.5 py-1.5 border border-blue-200 bg-white rounded-md text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-blue-800 uppercase mb-1">
-                                    Số lượng kho
-                                </label>
-                                <input
-                                    type="number"
-                                    value={stock}
-                                    onChange={(e) =>
-                                        setStock(Number(e.target.value))
                                     }
                                     className="w-full px-2.5 py-1.5 border border-blue-200 bg-white rounded-md text-sm"
                                 />

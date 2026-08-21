@@ -95,6 +95,7 @@ model ProductVariant {
   productId    String
   sku          String               @unique
   price        Float
+  costPrice    Float                @default(0)
   stock        Int
   isActive     Boolean              @default(true)
   createdAt    DateTime             @default(now())

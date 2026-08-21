@@ -13,6 +13,7 @@ export interface ProductTranslationInput {
 export interface VariantInput {
     sku: string;
     price: number;
+    costPrice: number;
     stock: number;
     options: { optionName: string; value: string }[];
 }
@@ -67,6 +68,11 @@ export async function upsertProductAction(
         });
         if (duplicateProduct) {
             throw new Error("Đường dẫn ${slug} đã tồn tại");
+        }
+
+        //validate basic data
+        if (!variants || variants.length === 0) {
+            throw new Error("Sản phẩm phải có ít nhất 1 biến thể");
         }
 
         //handle database through transaction
@@ -152,6 +158,7 @@ export async function upsertProductAction(
                         productId,
                         sku: v.sku,
                         price: v.price,
+                        costPrice: v.costPrice,
                         stock: v.stock,
                         optionValues: {
                             connect: optionValueIds.map((id) => ({ id })),

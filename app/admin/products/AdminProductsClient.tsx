@@ -259,6 +259,7 @@ export default function AdminProductsClient({
                             <th className="p-4">Đường dẫn / Slug</th>
                             <th className="p-4">Giá cơ bản</th>
                             <th className="p-4">Kho hàng (Std)</th>
+                            <th className="p-4">Tài chính (Vốn / Bán)</th>
                             <th className="p-4 text-right">Hành động</th>
                         </tr>
                     </thead>
@@ -287,7 +288,20 @@ export default function AdminProductsClient({
                                     product.category?.translations?.[0];
                                 const categoryName =
                                     viCategoryTrans?.name || "Chưa phân loại";
+                                const primaryVariant = product.variants?.[0];
+                                const currentPrice =
+                                    primaryVariant?.price || product.basePrice;
+                                const currentCost =
+                                    primaryVariant?.costPrice || 0;
 
+                                const margin =
+                                    currentPrice > 0
+                                        ? Math.round(
+                                              ((currentPrice - currentCost) /
+                                                  currentPrice) *
+                                                  100,
+                                          )
+                                        : 0;
                                 return (
                                     <tr
                                         key={product.id}
@@ -339,6 +353,37 @@ export default function AdminProductsClient({
                                             >
                                                 {totalStock} trong kho
                                             </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="text-sm font-bold text-gray-800">
+                                                    Bán:{" "}
+                                                    {currentPrice.toLocaleString(
+                                                        "vi-VN",
+                                                    )}{" "}
+                                                    đ
+                                                </div>
+                                                <div className="text-xs text-gray-500 font-semibold line-through">
+                                                    Vốn:{" "}
+                                                    {currentCost.toLocaleString(
+                                                        "vi-VN",
+                                                    )}{" "}
+                                                    đ
+                                                </div>
+                                                <div className="mt-1">
+                                                    <span
+                                                        className={`text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-sm ${
+                                                            margin >= 30
+                                                                ? "bg-emerald-100 text-emerald-700"
+                                                                : margin > 0
+                                                                  ? "bg-amber-100 text-amber-700"
+                                                                  : "bg-red-100 text-red-700"
+                                                        }`}
+                                                    >
+                                                        Lãi {margin}%
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td className="p-4 text-right">
                                             {!product.isActive && (
