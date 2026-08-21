@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useCartStore } from "../store/cartStore";
+import Image from "next/image";
 
 export default function CartPage() {
     const [isMounted, setIsMounted] = useState(false);
@@ -175,7 +176,7 @@ export default function CartPage() {
                                     >
                                         <div className="flex gap-4 items-center">
                                             {item.imageUrl ? (
-                                                <img
+                                                <Image
                                                     src={item.imageUrl}
                                                     alt="img"
                                                     className="w-16 h-16 object-cover rounded-xl border border-gray-100"

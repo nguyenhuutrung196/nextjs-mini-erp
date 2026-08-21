@@ -1,12 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import ProductModal from "./ProductModal";
 import { toast } from "sonner";
 import { deleteProductAction, restoreProductAction } from "./actions";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import { AdminProduct, AdminTranslation } from "@/types/erp";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
+import dynamic from "next/dynamic";
+
+//lazy load modal
+const ProductModal = dynamic(() => import("./ProductModal"), {
+    ssr: false, //turn off server side rendering cause it's UI
+    loading: () => (
+        <p className="text-xs text-gray-400 p-4">Đang tải công cụ sửa...</p>
+    ),
+});
 
 export default function AdminProductsClient({
     initialProducts,
@@ -286,7 +295,7 @@ export default function AdminProductsClient({
                                     >
                                         <td className="p-4">
                                             {product.images?.[0] ? (
-                                                <img
+                                                <Image
                                                     src={product.images[0]}
                                                     alt="SP"
                                                     className="w-12 h-12 object-cover rounded-lg border border-gray-200"
