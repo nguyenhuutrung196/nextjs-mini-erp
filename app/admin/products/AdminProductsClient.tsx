@@ -256,8 +256,6 @@ export default function AdminProductsClient({
                             <th className="p-4">Hình ảnh</th>
                             <th className="p-4">Tên Sản Phẩm (VI)</th>
                             <th className="p-4">Danh mục</th>
-                            <th className="p-4">Đường dẫn / Slug</th>
-                            <th className="p-4">Giá cơ bản</th>
                             <th className="p-4">Kho hàng (Std)</th>
                             <th className="p-4">Tài chính (Vốn / Bán)</th>
                             <th className="p-4 text-right">Hành động</th>
@@ -310,6 +308,8 @@ export default function AdminProductsClient({
                                         <td className="p-4">
                                             {product.images?.[0] ? (
                                                 <Image
+                                                    width={12}
+                                                    height={12}
                                                     src={product.images[0]}
                                                     alt="SP"
                                                     className="w-12 h-12 object-cover rounded-lg border border-gray-200"
@@ -328,20 +328,14 @@ export default function AdminProductsClient({
                                             <div className="text-xs text-gray-500 font-mono">
                                                 ID: {product.id.slice(0, 8)}...
                                             </div>
+                                            <div className="text-xs text-gray-500 font-mono">
+                                                /product/{product.slug}
+                                            </div>
                                         </td>
                                         <td className="p-4">
                                             <span className="bg-blue-50 text-blue-800 py-1 px-3 rounded-full text-xs font-semibold border border-blue-100 whitespace-nowrap">
                                                 {categoryName}
                                             </span>
-                                        </td>
-                                        <td className="p-4 text-sm font-mono text-gray-500">
-                                            /product/{product.slug}
-                                        </td>
-                                        <td className="p-4 font-semibold text-gray-800">
-                                            {product.basePrice.toLocaleString(
-                                                "vi-VN",
-                                            )}{" "}
-                                            đ
                                         </td>
                                         <td className="p-4">
                                             <span

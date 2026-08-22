@@ -177,6 +177,8 @@ export default function CartPage() {
                                         <div className="flex gap-4 items-center">
                                             {item.imageUrl ? (
                                                 <Image
+                                                    width={48}
+                                                    height={48}
                                                     src={item.imageUrl}
                                                     alt="img"
                                                     className="w-16 h-16 object-cover rounded-xl border border-gray-100"

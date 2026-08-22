@@ -415,8 +415,11 @@ export default function ProductModal({
 
                     {/* Cấu hình Biến Thể (80/20 core value) */}
                     <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 space-y-4">
-                        <h3 className="text-sm font-bold text-blue-900 border-b border-blue-100 pb-2">
-                            📦 Thiết lập Phiên bản & Kho hàng (Standard Variant)
+                        <h3 className="text-sm font-bold text-blue-900 border-b border-blue-100 pb-2 flex justify-between">
+                            <span>
+                                📦 Thiết lập Phiên bản & Kho hàng (Standard
+                                Variant)
+                            </span>
                             <span className="text-emerald-600 font-extrabold">
                                 Biên lợi nhuận:{" "}
                                 {price > 0
