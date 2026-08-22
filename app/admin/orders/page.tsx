@@ -18,6 +18,24 @@ export default async function AdminOrdersPage() {
             <h1 className="text-3xl font-bold mb-6 text-gray-800">
                 Đơn hàng chờ xử lý để giao
             </h1>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-800">
+                        Quản lý Đơn hàng
+                    </h1>
+                    <p className="text-sm text-gray-500">
+                        Xử lý đơn hàng đã thanh toán và xuất báo cáo doanh thu.
+                    </p>
+                </div>
+
+                <a
+                    href="/api/export/orders"
+                    target="_self"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-md transition-all flex items-center gap-2"
+                >
+                    ⬇️ Xuất CSV Doanh Thu
+                </a>
+            </div>
             {paidOrders.length === 0 ? (
                 <p>Chưa có đơn hàng nào được thanh toán</p>
             ) : (
