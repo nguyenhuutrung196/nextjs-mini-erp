@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import WarningIcon from "@mui/icons-material/Warning";
 import {
     Box,
     Card,
@@ -39,6 +40,24 @@ export default async function DashboardHome() {
     const activeProducts = await prisma.product.count({
         where: { isActive: true },
     });
+
+    const LOW_STOCK_THRESHOLD = 5;
+    const lowStockCount = await prisma.productVariant.count({
+        where: {
+            isActive: true,
+            stock: { lte: LOW_STOCK_THRESHOLD },
+            product: { isActive: true },
+        },
+    });
+
+    const totalVariantsCount = await prisma.productVariant.count({
+        where: { isActive: true, product: { isActive: true } },
+    });
+
+    const lowStockPercentage =
+        totalVariantsCount > 0
+            ? Math.round((lowStockCount / totalVariantsCount) * 100)
+            : 0;
 
     //add target bussiness
     const TARGET_ORDERS = 1025;
@@ -77,6 +96,20 @@ export default async function DashboardHome() {
             progress: 100,
             color: "warning",
             icon: <InventoryIcon sx={{ color: "#ed6c02" }} />,
+        },
+        {
+            title: "Cảnh báo tồn kho",
+            value: `${lowStockCount} biến thể`,
+            target: `Sắp hết hàng (<= ${LOW_STOCK_THRESHOLD} sản phẩm)`,
+            progress: lowStockPercentage,
+            color: lowStockPercentage > 20 ? "error" : "warning",
+            icon: (
+                <WarningIcon
+                    sx={{
+                        color: lowStockPercentage > 20 ? "#d32f2f" : "#ed6c02",
+                    }}
+                />
+            ),
         },
     ];
 
